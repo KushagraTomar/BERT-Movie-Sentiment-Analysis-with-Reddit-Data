@@ -143,7 +143,7 @@ def create_app(config_name='default'):
                     'average_confidence': sentiment_analysis.get('average_confidence', 0),
                     'sentiment_counts': sentiment_analysis.get('sentiment_counts', {})
                 },
-                'sample_texts': texts[:5],  # Include first 5 texts as samples
+                'sample_texts': texts[:10],  # Include first 10 texts as samples
                 'timestamp': datetime.now().isoformat()
             }
             
