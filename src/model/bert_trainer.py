@@ -207,7 +207,7 @@ class MovieSentimentBERTTrainer:
             
             # FP16 training for memory efficiency
             fp16=True,  # Use half precision to reduce memory usage
-            fp16_opt_level="O1",  # Conservative FP16 optimization
+            fp16_opt_level="O1",  # Mixed precision mode
             
             # Memory management
             dataloader_pin_memory=False,  # Reduce memory usage
@@ -228,7 +228,7 @@ class MovieSentimentBERTTrainer:
             greater_is_better=True,
             
             # Additional memory optimizations
-            remove_unused_columns=True,
+            # remove_unused_columns=True,
             prediction_loss_only=False,
         )
         
