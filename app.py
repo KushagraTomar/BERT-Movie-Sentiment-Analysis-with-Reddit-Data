@@ -7,7 +7,7 @@ from datetime import datetime
 from loguru import logger
 import traceback
 
-# Add src to path
+# Add src/ folder to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from config import config
@@ -18,7 +18,7 @@ def create_app(config_name='default'):
     """Application factory"""
     app = Flask(__name__)
     
-    # Load configuration
+    # Load production configuration
     app.config.from_object(config[config_name])
     
     # Enable CORS
@@ -51,12 +51,15 @@ def create_app(config_name='default'):
             'reddit_available': scraper.reddit is not None
         })
     
+    # Predict sentiment for a single text
     @app.route('/api/predict', methods=['POST'])
     def predict_sentiment():
         """Predict sentiment for given text"""
         try:
+            # Get JSON data from request
             data = request.get_json()
             
+            # Validate input
             if not data or 'text' not in data:
                 return jsonify({'error': 'Text is required'}), 400
             
@@ -70,6 +73,7 @@ def create_app(config_name='default'):
             # Predict sentiment
             result = predictor.predict_single(text)
             
+            # Check for errors in prediction
             if 'error' in result:
                 return jsonify({'error': result['error']}), 500
             
@@ -83,12 +87,15 @@ def create_app(config_name='default'):
             logger.error(f"Error in predict_sentiment: {e}")
             return jsonify({'error': 'Internal server error'}), 500
     
+    # Analyze sentiment for a movie using Reddit data
     @app.route('/api/analyze-movie', methods=['POST'])
     def analyze_movie():
         """Analyze sentiment for a movie using Reddit data"""
         try:
+            # Get JSON data from request
             data = request.get_json()
             
+            # Validate input
             if not data or 'movie_name' not in data:
                 return jsonify({'error': 'Movie name is required'}), 400
             
@@ -103,7 +110,8 @@ def create_app(config_name='default'):
                 return jsonify({'error': 'Reddit API not available. Please check credentials.'}), 503
             
             # Get parameters
-            max_posts = min(data.get('max_posts', 20), 50)  # Limit to prevent overload
+            # Limit posts and comments to prevent overload
+            max_posts = min(data.get('max_posts', 20), 50)  
             max_comments = min(data.get('max_comments_per_post', 30), 100)
             
             logger.info(f"Starting movie analysis for: {movie_name}")
@@ -159,6 +167,7 @@ def create_app(config_name='default'):
     def train_model():
         """Train the BERT model (for development/testing)"""
         try:
+            # Debug Mode Check
             if not app.config.get('DEBUG', False):
                 return jsonify({'error': 'Training endpoint only available in debug mode'}), 403
             
